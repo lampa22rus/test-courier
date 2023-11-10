@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:alpine
+    depends_on:
+      - backend
+    ports:
+      - "8000:80"
+    networks:
+      - custom
+    volumes:
+      - ./conf/conf.d:/etc/nginx/conf.d
+  
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - DB_USERNAME=courier
+      - DB_PASSWORD=courier
+      - DB_DATABASE=courier
+    # ports:
+    #   - "8000:8000"
+    networks:
+      - custom
+    depends_on:
+      - postgresdb
+
+  postgresdb:
+    image: postgres:12.1
+    ports: 
+      - "5432:5432"
+    restart: always
+    networks:
+      - custom
+    environment:
+      - POSTGRES_USER=courier
+      - POSTGRES_PASSWORD=courier
+      - POSTGRES_DB=courier
+  
+networks:
+  custom:
+    driver: bridge
