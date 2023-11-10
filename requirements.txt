@@ -14,7 +14,9 @@ anyio==3.7.1
     #   starlette
     #   watchfiles
 click==8.1.7
-    # via uvicorn
+    # via
+    #   uvicorn
+    #   wait-for-it
 exceptiongroup==1.1.3
     # via anyio
 faker==19.13.0
@@ -74,6 +76,8 @@ uvicorn[standard]==0.23.2
     # via -r requirements.in
 uvloop==0.19.0
     # via uvicorn
+wait-for-it==2.2.2
+    # via -r requirements.in
 watchfiles==0.21.0
     # via uvicorn
 websockets==12.0

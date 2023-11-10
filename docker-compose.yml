@@ -5,6 +5,7 @@ services:
     image: nginx:alpine
     depends_on:
       - backend
+      - postgres
     ports:
       - "8000:80"
     networks:
@@ -17,21 +18,20 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    environment:
-      - DB_USERNAME=courier
-      - DB_PASSWORD=courier
-      - DB_DATABASE=courier
-    # ports:
-    #   - "8000:8000"
+    command: >
+      bash -c "wait-for-it --service postgres:5432 -t 0
+      && alembic upgrade head 
+      && python3.8 main.py --server seed
+      && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
     networks:
       - custom
     depends_on:
-      - postgresdb
+      - postgres
 
-  postgresdb:
+  postgres:
     image: postgres:12.1
     ports: 
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     restart: always
     networks:
       - custom
@@ -39,7 +39,8 @@ services:
       - POSTGRES_USER=courier
       - POSTGRES_PASSWORD=courier
       - POSTGRES_DB=courier
+    volumes:
+      - .data/postgresql:/var/lib/postgresql/data
   
 networks:
   custom:
-    driver: bridge
